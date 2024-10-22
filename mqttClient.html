@@ -98,21 +98,36 @@
         #clearMessages:hover {
             background-color: #c82333;
         }
+
+        /* Estilo do indicador de carregamento */
+        #loadingIndicator {
+            display: none;
+            border: 8px solid #f3f3f3; /* Cor do fundo */
+            border-top: 8px solid #3498db; /* Cor da parte superior */
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-top: 10px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
     </style>
 </head>
 <body>
     <h1>MQTT Notification</h1>
 
-    <!-- Dropdown para seleção do broker -->
     <label for="brokerSelect">Select MQTT Broker:</label>
     <select id="brokerSelect">
        <option value="wss://test.mosquitto.org:8081/mqtt">test.mosquitto.org (Public Broker)</option>
-       <option value="wss://broker.hivemq.com:8000/mqtt">broker.hivemq.com (Public Broker)</option>
+       <option value="ws://broker.hivemq.com:8000/mqtt">broker.hivemq.com (Public Broker)</option>
        <option value="wss://iot.eclipse.org:8080/mqtt">iot.eclipse.org (Public Broker)</option>
        <option value="ws://localhost:8080/mqtt">localhost (Local Broker)</option>
     </select>
 
-    <!-- Inputs e funcionalidades existentes -->
     <p>Insira o tópico: </p>
     <input type="text" id="topicInput" placeholder="Tópico..." value="sahm/heyMessage">
     
@@ -120,23 +135,27 @@
         <input type="checkbox" id="soundCheckbox"> Ativar Som
     </label>
 
-    <div id="notification"></div> <!-- Notificação -->
-    <div id="messages"></div> <!-- Exibição das mensagens recebidas -->
+    <div id="notification"></div>
+    <div id="messages"></div>
 
     <div class="button-container">
         <input type="text" id="messageInput" placeholder="Escreva sua mensagem aqui...">
-        <button id="publishButton">Publicar Mensagem</button>
+        <button id="publishButton" disabled>Publicar Mensagem</button>
     </div>
     
     <button id="clearMessages">Limpar Mensagens</button>
 
     <audio id="alertSound" src="alerta.wav"></audio>
 
+    <!-- Indicador de carregamento -->
+    <div id="loadingIndicator"></div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
-        const MAX_MESSAGES = 20; // Limite máximo de mensagens
+        const MAX_MESSAGES = 20; 
+        let mqttClient; 
+        let isConnected = false; // Variável para rastrear o estado da conexão
 
-        // Função para gerar clientId aleatório
         function generateClientId() {
             const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
             let clientId = '';
@@ -146,44 +165,61 @@
             return clientId;
         }
 
-        // Função para obter o broker selecionado
         function getSelectedBroker() {
             const brokerSelect = document.getElementById("brokerSelect");
             return brokerSelect.value;
         }
 
-        // Função para conectar ao broker selecionado
-	function connectToBroker() {
-    const selectedBroker = getSelectedBroker();
-    const client = new Paho.MQTT.Client(selectedBroker, generateClientId());
-    
-    client.onConnectionLost = function(responseObject) {
-        if (responseObject.errorCode !== 0) {
-            console.log("Conexão perdida: " + responseObject.errorMessage);
+        function showLoadingIndicator() {
+            document.getElementById("loadingIndicator").style.display = "block";
         }
-    };
 
-    client.onMessageArrived = function(message) {
-        console.log("Mensagem recebida: " + message.payloadString);
-        showMessage(message.payloadString);
-        if (document.getElementById("soundCheckbox").checked) {
-            playSound();
+        function hideLoadingIndicator() {
+            document.getElementById("loadingIndicator").style.display = "none";
         }
-    };
 
-    client.connect({
-        onSuccess: function() {
-            console.log("Conectado ao broker MQTT: " + selectedBroker);
-            client.subscribe("sahm/heyMessage");
-        },
-        onFailure: function(error) {
-            console.log("Falha ao conectar ao broker: " + error.errorMessage);
+        function connectToBroker() {
+            showLoadingIndicator(); // Mostra o indicador de carregamento
+            const selectedBroker = getSelectedBroker();
+            console.log("Tentando conectar ao broker:", selectedBroker);
+            const client = new Paho.MQTT.Client(selectedBroker, generateClientId());
+
+            client.onConnectionLost = function(responseObject) {
+                if (responseObject.errorCode !== 0) {
+                    console.log("Conexão perdida: " + responseObject.errorMessage);
+                }
+                isConnected = false; // Atualiza o estado de conexão
+                document.getElementById("publishButton").disabled = true; // Desabilita o botão de publicar
+                hideLoadingIndicator(); // Esconde o indicador de carregamento
+            };
+
+            client.onMessageArrived = function(message) {
+                console.log("Mensagem recebida: " + message.payloadString);
+                showMessage(message.payloadString);
+                if (document.getElementById("soundCheckbox").checked) {
+                    playSound();
+                }
+            };
+
+            client.connect({
+                onSuccess: function() {
+                    console.log("Conectado ao broker MQTT: " + selectedBroker);
+                    client.subscribe("sahm/heyMessage");
+                    isConnected = true; // Atualiza o estado de conexão
+                    document.getElementById("publishButton").disabled = false; // Habilita o botão de publicar
+                    hideLoadingIndicator(); // Esconde o indicador de carregamento
+                },
+                onFailure: function(error) {
+                    console.log("Falha ao conectar ao broker: " + error.errorMessage);
+                    isConnected = false; // Atualiza o estado de conexão
+                    document.getElementById("publishButton").disabled = true; // Desabilita o botão de publicar se a conexão falhar
+                    hideLoadingIndicator(); // Esconde o indicador de carregamento
+                }
+            });
+
+            return client;
         }
-    });
 
-    return client;
-}
-            // Função para mostrar mensagens
         function showMessage(message) {
             const messagesDiv = document.getElementById("messages");
             const timestamp = new Date().toLocaleString();
@@ -222,42 +258,34 @@
             document.getElementById("messages").innerHTML = "";
         }
 
-        function publishMessage(client) {
+        function publishMessage() {
             const messageInput = document.getElementById("messageInput");
             const message = messageInput.value.trim();
             const topicInput = document.getElementById("topicInput");
             const topic = topicInput.value.trim();
-            
+    
             if (message) {
-                const mqttMessage = new Paho.MQTT.Message(message);
-                mqttMessage.destinationName = topic;
-                client.send(mqttMessage);
-                messageInput.value = "";
-            } else {
-                alert("Por favor, insira uma mensagem.");
+                console.log("Tentando publicar a mensagem:", message);
+                if (isConnected) { // Verifica se o cliente está conectado
+                    const mqttMessage = new Paho.MQTT.Message(message);
+                    mqttMessage.destinationName = topic;
+                    mqttClient.send(mqttMessage);
+                    messageInput.value = "";
+                } else {
+                    alert("Não está conectado ao broker. Tente novamente.");
+                }
             }
         }
 
-        // Inicializar conexão com o broker ao carregar a página
-        let mqttClient = connectToBroker();
-
-        // Eventos para os botões e inputs
-        document.getElementById("publishButton").onclick = function() {
-            publishMessage(mqttClient);
-        };
-
-        document.getElementById("clearMessages").onclick = clearMessages;
-
-        document.getElementById("messageInput").addEventListener("keypress", function(event) {
-            if (event.key === "Enter") {
-                publishMessage(mqttClient);
-            }
-        });
-
-        // Reconectar ao broker quando o usuário selecionar um novo broker
         document.getElementById("brokerSelect").addEventListener("change", function() {
-            mqttClient = connectToBroker();
+            if (mqttClient) {
+                mqttClient.disconnect(); // Desconecta o cliente atual
+            }
+            mqttClient = connectToBroker(); // Conecta ao novo broker
         });
+
+        document.getElementById("publishButton").addEventListener("click", publishMessage);
+        document.getElementById("clearMessages").addEventListener("click", clearMessages);
     </script>
 </body>
 </html>
