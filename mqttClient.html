@@ -155,7 +155,8 @@
         // Função para conectar ao broker selecionado
         function connectToBroker() {
             const selectedBroker = getSelectedBroker();
-            const client = new Paho.MQTT.Client(selectedBroker, Number(8081), generateClientId());
+            <!--const client = new Paho.MQTT.Client(`wss://${selectedBroker}/mqtt`, Number(8081), generateClientId());-->
+	    const client = new Paho.MQTT.Client('wss://test.mosquitto.org:8081/mqtt', generateClientId());
 
             client.onConnectionLost = function(responseObject) {
                 if (responseObject.errorCode !== 0) {
