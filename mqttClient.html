@@ -13,127 +13,128 @@
             height: 100vh;
             margin: 0;
             font-family: Arial, sans-serif;
+            background-color: #f0f0f0;
             padding: 20px;
-            box-sizing: border-box;
         }
 
-        /* Estilo para a notificação */
-        #notification {
-            display: none; /* Começa escondido */
-            position: fixed;
-            bottom: 20px;
-            right: 20px;
-            background-color: #4CAF50; /* Verde */
-            color: white;
-            padding: 15px;
+        h1 {
+            color: #333;
+        }
+
+        input[type="text"] {
+            width: 300px;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
             border-radius: 5px;
-            z-index: 1000;
-            transition: opacity 0.5s ease-in-out;
         }
 
-        /* Estilo para as mensagens recebidas */
-        #messages {
-            margin-top: 20px;
-            width: 100%;
-            max-width: 600px; /* Largura máxima */
-            overflow-y: auto; /* Rolagem vertical */
-            max-height: 300px; /* Altura máxima */
-            border: 1px solid #ccc; /* Bordas */
-            padding: 10px; /* Espaçamento interno */
-            border-radius: 5px; /* Bordas arredondadas */
-            background-color: #f9f9f9; /* Cor de fundo */
-        }
-
-        /* Estilo para a label e checkbox */
-        label {
-            margin: 10px 0; /* Margem em cima e embaixo */
-        }
-
-        /* Estilo para o botão de som */
         button {
             padding: 10px 20px;
+            background-color: #28a745;
+            color: white;
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            margin: 10px 0;
         }
 
-        /* Estilo para o botão "Publicar" */
-        #publishButton {
-            background-color: #4CAF50; /* Verde */
+        button:hover {
+            background-color: #218838;
+        }
+
+        #brokerSelect {
+            width: 300px;
+            padding: 10px;
+            font-size: 16px;
+            border-radius: 5px;
+            border: 1px solid #ccc;
+            margin-bottom: 15px;
+        }
+
+        #notification {
+            padding: 10px;
+            background-color: #007bff;
             color: white;
-            height: 40px; /* Altura fixa */
-            margin-left: 5px; /* Espaçamento à esquerda */
+            border-radius: 5px;
+            margin-top: 10px;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.5s ease-in-out;
         }
 
-        #publishButton:hover {
-            background-color: #388E3C; /* Verde escuro */
+        #messages {
+            margin-top: 20px;
+            max-height: 200px;
+            overflow-y: auto;
+            width: 300px;
+            border: 1px solid #ddd;
+            background-color: #fff;
+            padding: 10px;
+            border-radius: 5px;
         }
 
-        /* Estilo para o botão "Limpar" */
-        #clearMessages {
-            background-color: red; /* Vermelho */
-            padding: 8px 16px; /* Tamanho padrão */
-            height: 40px; /* Altura fixa */
-            margin-top: 10px; /* Margem em cima */
+        p {
+            font-size: 14px;
+            color: #333;
         }
 
-        /* Estilo para o textbox */
-        #messageInput {
-            width: calc(100% - 130px); /* Ajusta a largura para ficar ao lado do botão */
-            max-width: 100%; /* Largura máxima igual à caixa de mensagens */
-            padding: 10px; /* Espaçamento interno */
-            border: 1px solid #ccc; /* Bordas */
-            border-radius: 5px; /* Bordas arredondadas */
-            height: 40px; /* Altura fixa para o textbox, igual ao botão */
-            display: inline-block; /* Para manter alinhado com o botão */
-            margin-top: 10px; /* Margem em cima */
-        }
-
-        /* Estilo para o textbox do tópico */
-        #topicInput {
-            width: 100%; /* Largura total do container */
-            max-width: 600px; /* Alinha com a caixa de mensagens */
-            padding: 10px; /* Espaçamento interno */
-            border: 1px solid #ccc; /* Bordas */
-            border-radius: 5px; /* Bordas arredondadas */
-            height: 40px; /* Altura fixa */
-            margin-top: 10px; /* Margem em cima */
-        }
-
-        /* Estilo para o container dos botões */
         .button-container {
-            display: flex; /* Flexbox para alinhar os botões */
-            align-items: center; /* Alinhamento vertical */
-            margin-top: 10px; /* Margem em cima */
-            width: 100%; /* Largura total do container */
-            max-width: 600px; /* Alinha com a caixa de mensagens */
+            display: flex;
+            justify-content: space-between;
+            width: 320px;
+        }
+
+        label {
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        #clearMessages {
+            background-color: #dc3545;
+        }
+
+        #clearMessages:hover {
+            background-color: #c82333;
         }
     </style>
 </head>
 <body>
     <h1>MQTT Notification</h1>
+
+    <!-- Dropdown para seleção do broker -->
+    <label for="brokerSelect">Select MQTT Broker:</label>
+    <select id="brokerSelect">
+        <option value="test.mosquitto.org">test.mosquitto.org (Public Broker)</option>
+        <option value="broker.hivemq.com">broker.hivemq.com (Public Broker)</option>
+        <option value="iot.eclipse.org">iot.eclipse.org (Public Broker)</option>
+        <option value="localhost">localhost (Local Broker)</option>
+    </select>
+
+    <!-- Inputs e funcionalidades existentes -->
     <p>Insira o tópico: </p>
-    <input type="text" id="topicInput" placeholder="Tópico..." value="sahm/heyMessage"> <!-- Textbox para entrada do tópico -->
+    <input type="text" id="topicInput" placeholder="Tópico..." value="sahm/heyMessage">
     
     <label>
         <input type="checkbox" id="soundCheckbox"> Ativar Som
     </label>
 
-    <div id="notification"></div> <!-- Div para exibir a notificação -->
-    <div id="messages"></div> <!-- Div para exibir as mensagens recebidas -->
+    <div id="notification"></div> <!-- Notificação -->
+    <div id="messages"></div> <!-- Exibição das mensagens recebidas -->
 
     <div class="button-container">
-        <input type="text" id="messageInput" placeholder="Escreva sua mensagem aqui..."> <!-- Textbox para entrada de mensagens -->
-        <button id="publishButton">Publicar Mensagem</button> <!-- Botão para publicar mensagem -->
+        <input type="text" id="messageInput" placeholder="Escreva sua mensagem aqui...">
+        <button id="publishButton">Publicar Mensagem</button>
     </div>
     
-    <button id="clearMessages">Limpar Mensagens</button> <!-- Botão para limpar mensagens -->
+    <button id="clearMessages">Limpar Mensagens</button>
 
-    <audio id="alertSound" src="alerta.wav"></audio> <!-- Áudio para tocar -->
+    <audio id="alertSound" src="alerta.wav"></audio>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js"></script>
     <script>
-        const MAX_MESSAGES = 20; // Limite máximo de mensagens a serem exibidas
+        const MAX_MESSAGES = 20; // Limite máximo de mensagens
 
         // Função para gerar clientId aleatório
         function generateClientId() {
@@ -145,119 +146,119 @@
             return clientId;
         }
 
-        // Criando o cliente MQTT com clientId aleatório
-        const client = new Paho.MQTT.Client("test.mosquitto.org", Number(8080), generateClientId());
-
-        // Função chamada ao perder a conexão
-        client.onConnectionLost = function(responseObject) {
-            if (responseObject.errorCode !== 0) {
-                console.log("Conexão perdida: " + responseObject.errorMessage);
-            }
-        };
-
-        // Função chamada ao receber uma mensagem
-        client.onMessageArrived = function(message) {
-            console.log("Mensagem recebida: " + message.payloadString);
-            showMessage(message.payloadString); // Mostra a mensagem na tela
-            if (document.getElementById("soundCheckbox").checked) {
-                playSound(); // Toca o som se o checkbox estiver marcado
-            } else {
-                console.log("Checkbox de som não marcado, som não será emitido.");
-            }
-        };
-
-        // Função para mostrar a notificação na tela
-        function showNotification(message) {
-            const notification = document.getElementById("notification");
-            notification.innerText = message; // Define o texto da notificação
-            notification.style.display = "block"; // Mostra a notificação
-            notification.style.opacity = 1; // Torna visível
-
-            // Após 3 segundos, esconda a notificação
-            setTimeout(() => {
-                notification.style.opacity = 0; // Torna invisível
-                setTimeout(() => {
-                    notification.style.display = "none"; // Esconde totalmente
-                }, 500); // Tempo para a transição
-            }, 3000); // Tempo que a notificação fica visível
+        // Função para obter o broker selecionado
+        function getSelectedBroker() {
+            const brokerSelect = document.getElementById("brokerSelect");
+            return brokerSelect.value;
         }
 
-	// Função para escapar o HTML e exibi-lo como texto
-	function escapeHtml(unsafe) {
-    		return unsafe
-        	.replace(/&/g, "&amp;")
-        	.replace(/</g, "&lt;")
-        	.replace(/>/g, "&gt;")
-        	.replace(/"/g, "&quot;")
-        	.replace(/'/g, "&#039;");
-	}
+        // Função para conectar ao broker selecionado
+        function connectToBroker() {
+            const selectedBroker = getSelectedBroker();
+            const client = new Paho.MQTT.Client(selectedBroker, Number(8080), generateClientId());
 
-	// Função para mostrar a mensagem na tela com escape de HTML
-	function showMessage(message) {
-    		const messagesDiv = document.getElementById("messages");
-    		const timestamp = new Date().toLocaleString(); // Obtém a data e hora atuais
+            client.onConnectionLost = function(responseObject) {
+                if (responseObject.errorCode !== 0) {
+                    console.log("Conexão perdida: " + responseObject.errorMessage);
+                }
+            };
 
-    		// Escapa o conteúdo da mensagem antes de exibir
-    		const escapedMessage = escapeHtml(message);
+            client.onMessageArrived = function(message) {
+                console.log("Mensagem recebida: " + message.payloadString);
+                showMessage(message.payloadString);
+                if (document.getElementById("soundCheckbox").checked) {
+                    playSound();
+                }
+            };
 
-    		// Verifica se já há o número máximo de mensagens
-    		if (messagesDiv.children.length >= MAX_MESSAGES) {
-        		messagesDiv.removeChild(messagesDiv.firstChild); // Remove a mensagem mais antiga
-    		}
+            client.connect({
+                onSuccess: function() {
+                    console.log("Conectado ao broker MQTT: " + selectedBroker);
+                    client.subscribe("sahm/heyMessage");
+                },
+                onFailure: function(error) {
+                    console.log("Falha ao conectar ao broker: " + error.errorMessage);
+                }
+            });
 
-    		messagesDiv.innerHTML += `<p><strong>[${timestamp}]</strong> Mensagem: ${escapedMessage}</p>`; // Adiciona a nova mensagem
-    		showNotification(message); // Mostra a notificação
-	}
+            return client;
+        }
 
-        // Função para tocar o som
+        // Função para mostrar mensagens
+        function showMessage(message) {
+            const messagesDiv = document.getElementById("messages");
+            const timestamp = new Date().toLocaleString();
+            
+            if (messagesDiv.children.length >= MAX_MESSAGES) {
+                messagesDiv.removeChild(messagesDiv.firstChild);
+            }
+
+            messagesDiv.innerHTML += `<p><strong>[${timestamp}]</strong> Mensagem: ${message}</p>`;
+            showNotification(message);
+        }
+
+        function showNotification(message) {
+            const notification = document.getElementById("notification");
+            notification.innerText = message;
+            notification.style.display = "block";
+            notification.style.opacity = 1;
+
+            setTimeout(() => {
+                notification.style.opacity = 0;
+                setTimeout(() => {
+                    notification.style.display = "none";
+                }, 500);
+            }, 3000);
+        }
+
         function playSound() {
             const sound = document.getElementById("alertSound");
-            sound.currentTime = 0; // Reinicia o som
+            sound.currentTime = 0;
             sound.play().catch(err => {
                 console.log("Erro ao tentar tocar o som:", err);
             });
         }
 
-        // Função para limpar as mensagens na tela
         function clearMessages() {
-            document.getElementById("messages").innerHTML = ""; // Limpa o conteúdo das mensagens
+            document.getElementById("messages").innerHTML = "";
         }
 
-        // Função para publicar uma mensagem
-        function publishMessage() {
+        function publishMessage(client) {
             const messageInput = document.getElementById("messageInput");
-            const message = messageInput.value.trim(); // Obtém o valor do textbox
+            const message = messageInput.value.trim();
             const topicInput = document.getElementById("topicInput");
-            const topic = topicInput.value.trim(); // Obtém o valor do textbox de tópico
+            const topic = topicInput.value.trim();
             
-            if (message !== "" && topic !== "") {
-                const mqttMessage = new Paho.MQTT.Message(message); // Cria a mensagem
-                mqttMessage.destinationName = topic; // Define o destino (tópico)
-                client.send(mqttMessage); // Envia a mensagem
-                messageInput.value = ""; // Limpa o campo de texto
+            if (message) {
+                const mqttMessage = new Paho.MQTT.Message(message);
+                mqttMessage.destinationName = topic;
+                client.send(mqttMessage);
+                messageInput.value = "";
+            } else {
+                alert("Por favor, insira uma mensagem.");
             }
         }
 
-        // Função chamada ao conectar
-        function onConnect() {
-            console.log("Conectado ao broker MQTT");
-            const topicInput = document.getElementById("topicInput");
-            const topic = topicInput.value.trim(); // Obtém o valor do textbox de tópico
-            if (topic !== "") {
-                client.subscribe(topic); // Se inscreve no tópico
-            }
-        }
+        // Inicializar conexão com o broker ao carregar a página
+        let mqttClient = connectToBroker();
 
-        // Conecta ao broker MQTT
-        client.connect({
-            onSuccess: onConnect
+        // Eventos para os botões e inputs
+        document.getElementById("publishButton").onclick = function() {
+            publishMessage(mqttClient);
+        };
+
+        document.getElementById("clearMessages").onclick = clearMessages;
+
+        document.getElementById("messageInput").addEventListener("keypress", function(event) {
+            if (event.key === "Enter") {
+                publishMessage(mqttClient);
+            }
         });
 
-        // Adiciona evento de clique para o botão "Publicar"
-        document.getElementById("publishButton").addEventListener("click", publishMessage);
-
-        // Adiciona evento de clique para o botão "Limpar"
-        document.getElementById("clearMessages").addEventListener("click", clearMessages);
+        // Reconectar ao broker quando o usuário selecionar um novo broker
+        document.getElementById("brokerSelect").addEventListener("change", function() {
+            mqttClient = connectToBroker();
+        });
     </script>
 </body>
 </html>
