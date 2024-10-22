@@ -155,7 +155,7 @@
         // Função para conectar ao broker selecionado
         function connectToBroker() {
             const selectedBroker = getSelectedBroker();
-            const client = new Paho.MQTT.Client(selectedBroker, Number(8080), generateClientId());
+            const client = new Paho.MQTT.Client(selectedBroker, Number(8081), generateClientId());
 
             client.onConnectionLost = function(responseObject) {
                 if (responseObject.errorCode !== 0) {
@@ -193,7 +193,7 @@
                 messagesDiv.removeChild(messagesDiv.firstChild);
             }
 
-            messagesDiv.innerHTML += `<p><strong>[${timestamp}]</strong> Mensagem: ${message}</p>`;
+            messagesDiv.insertAdjacentHTML('afterbegin', `<p><strong>[${timestamp}]</strong> Mensagem: ${message}</p>`);
             showNotification(message);
         }
 
