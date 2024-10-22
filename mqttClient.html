@@ -106,7 +106,7 @@
     <!-- Dropdown para seleção do broker -->
     <label for="brokerSelect">Select MQTT Broker:</label>
     <select id="brokerSelect">
-        <option value="test.mosquitto.org">test.mosquitto.org (Public Broker)</option>
+        <option value="wss://test.mosquitto.org:8081/mqtt">test.mosquitto.org (Public Broker)</option>
         <option value="broker.hivemq.com">broker.hivemq.com (Public Broker)</option>
         <option value="iot.eclipse.org">iot.eclipse.org (Public Broker)</option>
         <option value="localhost">localhost (Local Broker)</option>
@@ -155,9 +155,8 @@
         // Função para conectar ao broker selecionado
         function connectToBroker() {
             const selectedBroker = getSelectedBroker();
-            <!--const client = new Paho.MQTT.Client(`wss://${selectedBroker}/mqtt`, Number(8081), generateClientId());-->
-	    const client = new Paho.MQTT.Client('wss://test.mosquitto.org:8081/mqtt', generateClientId());
-
+            const client = new Paho.MQTT.Client(${selectedBroker}, Number(8081), generateClientId());
+	    
             client.onConnectionLost = function(responseObject) {
                 if (responseObject.errorCode !== 0) {
                     console.log("Conexão perdida: " + responseObject.errorMessage);
