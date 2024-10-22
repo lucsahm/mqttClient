@@ -132,6 +132,10 @@
     </select>
     
     <label>
+        <input type="checkbox" id="retainedCheckbox"> Habilitar Retenção
+    </label>
+
+    <label>
         <input type="checkbox" id="soundCheckbox"> Ativar Som
     </label>
 
@@ -173,6 +177,10 @@
         function getSelectedQoS() {
             const qosSelect = document.getElementById("qosSelect");
             return parseInt(qosSelect.value, 10);
+        }
+
+        function isRetained() {
+            return document.getElementById("retainedCheckbox").checked; // Verifica se o checkbox de retenção está marcado
         }
 
         function showLoadingIndicator() {
@@ -268,28 +276,43 @@
         }
 
         function publishMessage() {
-    const messageInput = document.getElementById("messageInput");
-    const message = messageInput.value.trim();
-    const topicInput = document.getElementById("topicInput");
-    const topic = topicInput.value.trim();
-    const qos = getSelectedQoS(); // Obtém o QoS selecionado
+            const messageInput = document.getElementById("messageInput");
+            const message = messageInput.value.trim();
+            const topicInput = document.getElementById("topicInput");
+            const topic = topicInput.value.trim();
+            const qos = getSelectedQoS(); // Obtém o QoS selecionado
 
-    if (message) {
-        console.log("Tentando publicar a mensagem:", message);
-        if (isConnected) {
-            const mqttMessage = new Paho.MQTT.Message(message);
-            mqttMessage.destinationName = topic;
-            mqttMessage.qos = qos; // Define o QoS da mensagem
-            mqttClient.send(mqttMessage); // Publica a mensagem
-            messageInput.value = "";
-        } else {
-            alert("Não está conectado ao broker. Tente novamente.");
+            if (message) {
+                console.log("Tentando publicar a mensagem:", message);
+                if (isConnected) {
+                    const mqttMessage = new Paho.MQTT.Message(message);
+                    mqttMessage.destinationName = topic;
+                    mqttMessage.qos = qos; // Define o QoS da mensagem
+                    mqttMessage.retained = isRetained(); // Define se a mensagem é retida
+                    mqttClient.send(mqttMessage); // Publica a mensagem
+                    messageInput.value = "";
+                } else {
+                    alert("Não está conectado ao broker. Tente novamente.");
+                }
+            } else {
+                alert("Por favor, insira uma mensagem válida.");
+            }
         }
-    } else {
-        alert("Por favor, insira uma mensagem válida.");
-    }
-}
-
+		
+		//Envia mensagem vazia apos desmar a retensão para limpar broker
+		document.getElementById("retainedCheckbox").addEventListener("change", function() {
+			if (!this.checked) {
+				// Publicar uma mensagem vazia se a retenção for desmarcada
+				const topicInput = document.getElementById("topicInput");
+				const topic = topicInput.value.trim();
+				
+				const mqttMessage = new Paho.MQTT.Message(""); // Mensagem vazia
+				mqttMessage.destinationName = topic; // O tópico
+				mqttMessage.retained = true; // Habilita a retenção
+				mqttClient.send(mqttMessage); // Publica a mensagem
+				console.log("Mensagem vazia publicada para remover a retenção no tópico:", topic);
+			}
+		});
 
         document.getElementById("brokerSelect").addEventListener("change", function() {
             if (mqttClient) {
@@ -302,7 +325,8 @@
         document.getElementById("clearMessages").addEventListener("click", clearMessages);
 
         window.onload = function() {
-            connectToBroker();
+            // Inicialização, se necessário
+			connectToBroker();
             updateConnectionIndicator();
         };
     </script>
