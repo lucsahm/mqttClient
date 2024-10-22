@@ -5,109 +5,132 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MQTT Client</title>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            margin: 0;
-            font-family: Arial, sans-serif;
-            background-color: #f0f0f0;
-            padding: 20px;
-        }
+       body {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			height: 100vh;
+			margin: 0;
+			font-family: 'Arial', sans-serif;
+			background-color: #1e1e1e; /* Fundo escuro */
+			color: #ffffff; /* Texto claro */
+			padding: 20px;
+		}
 
-        h1 {
-            color: #333;
-        }
+		h1 {
+			color: #ffffff; /* Título em branco */
+			font-size: 2em;
+			margin-bottom: 20px;
+			text-align: center; /* Centraliza o texto */
+		}
 
-        input[type="text"] {
-            width: 300px;
-            padding: 10px;
-            margin: 10px 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-        }
+		input[type="text"], select {
+			width: 100%; /* Faz os campos ocuparem a largura total */
+			max-width: 400px; /* Limita a largura em telas maiores */
+			padding: 10px;
+			margin: 10px 0;
+			border: 1px solid #444; /* Bordas escuras */
+			border-radius: 5px;
+			background-color: #2a2a2a; /* Fundo escuro dos campos */
+			color: #ffffff; /* Texto claro nos campos */
+			font-size: 16px;
+			transition: border-color 0.3s;
+		}
 
-        button {
-            padding: 10px 20px;
-            background-color: #28a745;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            margin: 10px 0;
-        }
+		input[type="text"]:focus, select:focus {
+			border-color: #007bff; /* Azul para destaque ao foco */
+			outline: none;
+		}
 
-        button:hover {
-            background-color: #218838;
-        }
+		button {
+			padding: 10px;
+			background-color: #007bff; /* Azul para botões */
+			color: white;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+			width: 100%; /* Faz o botão ocupar a largura total */
+			max-width: 200px; /* Limita a largura em telas maiores */
+			margin: 10px 0;
+			transition: background-color 0.3s;
+		}
 
-        #notification {
-            padding: 10px;
-            background-color: #007bff;
-            color: white;
-            border-radius: 5px;
-            margin-top: 10px;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
-        }
+		button:hover {
+			background-color: #0056b3; /* Azul escuro ao passar o mouse */
+		}
 
-        #messages {
-            margin-top: 20px;
-            max-height: 200px;
-            overflow-y: auto;
-            width: 300px;
-            border: 1px solid #ddd;
-            background-color: #fff;
-            padding: 10px;
-            border-radius: 5px;
-        }
+		#notification {
+			position: fixed; /* Permite que a notificação fique fixa na tela */
+			bottom: 20px; /* Distância do fundo */
+			right: 20px; /* Distância da direita */
+			padding: 10px;
+			background-color: #28a745; /* Verde para notificações */
+			color: white;
+			border-radius: 5px;
+			display: none;
+			opacity: 0;
+			transition: opacity 0.5s ease-in-out;
+			z-index: 1000; /* Garante que a notificação apareça acima de outros elementos */
+		}
 
-        .button-container {
-            display: flex;
-            justify-content: space-between;
-            width: 320px;
-        }
 
-        label {
-            font-size: 14px;
-            color: #333;
-            margin-bottom: 10px;
-        }
+		#messages {
+			margin-top: 20px;
+			max-height: 200px;
+			overflow-y: auto;
+			width: 100%; /* Faz a área de mensagens ocupar a largura total */
+			max-width: 400px; /* Limita a largura em telas maiores */
+			border: 1px solid #444; /* Bordas escuras */
+			background-color: #2a2a2a; /* Fundo escuro das mensagens */
+			padding: 10px;
+			border-radius: 5px;
+		}
 
-        #clearMessages {
-            background-color: #dc3545;
-        }
+		.button-container {
+			display: flex;
+			justify-content: space-between;
+			width: 100%; /* Faz a área dos botões ocupar a largura total */
+			max-width: 400px; /* Limita a largura em telas maiores */
+		}
 
-        #clearMessages:hover {
-            background-color: #c82333;
-        }
+		label {
+			font-size: 16px;
+			color: #ffffff; /* Texto claro para rótulos */
+		}
 
-        #loadingIndicator {
-            display: none;
-            border: 8px solid #f3f3f3;
-            border-top: 8px solid #3498db;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-top: 10px;
-        }
+		#clearMessages {
+			background-color: #dc3545; /* Vermelho para botão de limpar */
+		}
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
+		#clearMessages:hover {
+			background-color: #c82333; /* Vermelho escuro ao passar o mouse */
+		}
 
-        #connectionIndicator {
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            background-color: red; /* Inicialmente vermelho (desconectado) */
-            margin-top: 10px;
-        }
+		#loadingIndicator {
+			display: none;
+			border: 8px solid #444; /* Bordas escuras para o carregamento */
+			border-top: 8px solid #007bff; /* Azul para o topo */
+			border-radius: 50%;
+			width: 40px;
+			height: 40px;
+			animation: spin 1s linear infinite;
+			margin-top: 10px;
+		}
+
+		@keyframes spin {
+			0% { transform: rotate(0deg); }
+			100% { transform: rotate(360deg); }
+		}
+
+		#connectionIndicator {
+			width: 20px;
+			height: 20px;
+			border-radius: 50%;
+			background-color: red; /* Inicialmente vermelho (desconectado) */
+			margin-top: 10px;
+		}
+
     </style>
 </head>
 <body>
@@ -264,6 +287,14 @@
                 }, 500);
             }, 3000);
         }
+		
+		// Adiciona um evento para detectar a tecla pressionada
+		document.getElementById("messageInput").addEventListener("keypress", function(event) {
+			if (event.key === "Enter") {
+				publishMessage();
+				event.preventDefault(); // Impede a nova linha no campo de texto
+			}
+		});
 
         function playSound() {
             const sound = document.getElementById("alertSound");
