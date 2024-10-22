@@ -106,10 +106,10 @@
     <!-- Dropdown para seleção do broker -->
     <label for="brokerSelect">Select MQTT Broker:</label>
     <select id="brokerSelect">
-        <option value="wss://test.mosquitto.org:8081/mqtt">test.mosquitto.org (Public Broker)</option>
-        <option value="broker.hivemq.com">broker.hivemq.com (Public Broker)</option>
-        <option value="iot.eclipse.org">iot.eclipse.org (Public Broker)</option>
-        <option value="localhost">localhost (Local Broker)</option>
+       <option value="wss://test.mosquitto.org:8081/mqtt">test.mosquitto.org (Public Broker)</option>
+       <option value="wss://broker.hivemq.com:8000/mqtt">broker.hivemq.com (Public Broker)</option>
+       <option value="wss://iot.eclipse.org:8080/mqtt">iot.eclipse.org (Public Broker)</option>
+       <option value="ws://localhost:8080/mqtt">localhost (Local Broker)</option>
     </select>
 
     <!-- Inputs e funcionalidades existentes -->
@@ -153,38 +153,37 @@
         }
 
         // Função para conectar ao broker selecionado
-        function connectToBroker() {
-            const selectedBroker = getSelectedBroker();
-            const client = new Paho.MQTT.Client(${selectedBroker}, Number(8081), generateClientId());
-	    
-            client.onConnectionLost = function(responseObject) {
-                if (responseObject.errorCode !== 0) {
-                    console.log("Conexão perdida: " + responseObject.errorMessage);
-                }
-            };
-
-            client.onMessageArrived = function(message) {
-                console.log("Mensagem recebida: " + message.payloadString);
-                showMessage(message.payloadString);
-                if (document.getElementById("soundCheckbox").checked) {
-                    playSound();
-                }
-            };
-
-            client.connect({
-                onSuccess: function() {
-                    console.log("Conectado ao broker MQTT: " + selectedBroker);
-                    client.subscribe("sahm/heyMessage");
-                },
-                onFailure: function(error) {
-                    console.log("Falha ao conectar ao broker: " + error.errorMessage);
-                }
-            });
-
-            return client;
+	function connectToBroker() {
+    const selectedBroker = getSelectedBroker();
+    const client = new Paho.MQTT.Client(selectedBroker, generateClientId());
+    
+    client.onConnectionLost = function(responseObject) {
+        if (responseObject.errorCode !== 0) {
+            console.log("Conexão perdida: " + responseObject.errorMessage);
         }
+    };
 
-        // Função para mostrar mensagens
+    client.onMessageArrived = function(message) {
+        console.log("Mensagem recebida: " + message.payloadString);
+        showMessage(message.payloadString);
+        if (document.getElementById("soundCheckbox").checked) {
+            playSound();
+        }
+    };
+
+    client.connect({
+        onSuccess: function() {
+            console.log("Conectado ao broker MQTT: " + selectedBroker);
+            client.subscribe("sahm/heyMessage");
+        },
+        onFailure: function(error) {
+            console.log("Falha ao conectar ao broker: " + error.errorMessage);
+        }
+    });
+
+    return client;
+}
+            // Função para mostrar mensagens
         function showMessage(message) {
             const messagesDiv = document.getElementById("messages");
             const timestamp = new Date().toLocaleString();
